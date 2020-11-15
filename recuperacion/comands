@@ -1,0 +1,1 @@
+cat send.txt | base64 -d > enviame.enc
