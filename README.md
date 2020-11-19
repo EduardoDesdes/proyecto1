@@ -10,8 +10,10 @@
 - Determinar cómo se compartirá la clave parcial generada para el descifrado.  (Listo)
 - Desarrollo del ransomware en C. (Listo)
 - Desarrollo del demonio del ransomware. (Listo)
+- Verificar que no cifre por segunda vez un fichero (Listo)
+- Desarrollo de habilidades antiforenses para imposibilitar la recuperación de los archivos no cifrados. (Listo) [Posible mejora]
+- Seleccion de que directorios no revisar para cifrar (Listo) [Posible Mejora]
 - Desarrollo de la propiedad de rootkit del ransomware. (P)
-- Desarrollo de habilidades antiforenses para imposibilitar la recuperación de los archivos no cifrados. (P)
 
 ## TO-DO
 - Desarrollo del demonio del ransomware.(parcialmente desarrollado)
@@ -20,6 +22,11 @@
 - Extras: Bloquear Perifericos, Detener apagado del sistema
 - función `cifrar()`. Analizar la posibilidad de usar pthreads.
 - programa para recibir conexión/control remoto.
+- intentar hacer algo para que no mate el proceso de cifrado. (nuevo)
+- Manejar excepciones de conexion a internet (nuevo)
+- Unidad de Prueba (/test -> ¿?)
+- Habilitar Debugeo (nuevo)
+- Mandar una señal de shutdown cuando 
 
 ## Generacion aleatoria de la clave AES
 
