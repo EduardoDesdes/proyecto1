@@ -1,4 +1,4 @@
-# Proyecto de Tesis 1 a.k.a Ransomware Malo pero Bueno
+# Proyecto de Tesis 1
 
 ## Flujo de ejecución del programa
 ![flujo](img/exec_flow.png)
