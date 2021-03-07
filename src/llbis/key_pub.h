@@ -1,18 +1,7 @@
 void key_pub(int i){
     char * pub_key = {
         "-----BEGIN PUBLIC KEY-----\n"
-        "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2iM7qHGt9FQL1HeYldsE\n"
-        "nwfmAhlc3bfmRaxVA07YrjdCVTXyhjKq5cn8iE8nDWUDwbrZKnLIe63G7LpT6L8l\n"
-        "oqCgHieEPR3ZqXzuLjr0ZCkU9cFE8E1oJV7bfLEotH5iZpeuY06C1GwWi9+Kdrf9\n"
-        "R0J3dplb1BIxrsAxdiq+nUHVAeUIpDefvadJsK9pjUpfvsUH7O214S8CAzH1irxY\n"
-        "ejQlqrGdWXlzbeTzlm+BRl9VoxL04lioKDjw5c0dpYrP/MFysZqyzZdp3ctLwRYN\n"
-        "818+heHgGYoakWTUOqlhQXZh+O6mecya5j6BaxcXSL7IacQc5+Q9GKzlm7FlNpga\n"
-        "PQHKbaSbEifpCI6Ix4p/l44ZJTpq9VkrUrZNDbSsUFCIaVaFkXtGzrFcZLVusLaq\n"
-        "+Y9TUF1uKzK4UxAC+hU92O+ZxVhGTg1Z99Bj4vbKvDCr1YHRJeiziwwehb4i0xia\n"
-        "K8ft35krQl+Slkt57MuWrefdbtD0qvvw0u6H+6thtGZv2c4vg+MSK2pddPWC8IPi\n"
-        "kSHJOxR9B3Tmw9cOBhMvKoUSHHl4Rfznw7t4hzk2FL/HTpee4vP626CVLqDycYBe\n"
-        "yMo9tDSCJzE13yydTPNS5SzmavNTlAoM6VKJ8W7eqXloJ7TGTtJejzSJDGA21dGx\n"
-        "8CPFuYvv302VnB7d/urDbH8CAwEAAQ==\n"
+	"MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsU7b9tr+vYd9PfqOCUJ3HNKzDlMhCitOOv18TukGjtr5i/ryS2eNhZAIcAdpWyosGCzODsp1RQXzjlqFVqzPyg86hGxgFgwHvRzQciQ6xNWgd97bffYH6UH9iTmtN/RlNPRAx7l8nuVCJJSX8IJsU1I5HFYjsmYT42XNBE/wWdtkIU6HCpI/Ke4HuAPZC92U8yumg8wvDPr2E65w2bwZOaJ2vzXuvZiGq8Rkx/ueaJpeCuJ0Sy6WOMI7VVWbF6cHFQMvejZS2s+USdX2TWTK52yEaHf99B8jaKGk/8eeiQI78GAdWkIrgIr1+81ajyQHAs5ke2wXyZJMKI+ZnPYjVO/TL9bM3dDFiQU9qWVDwacn1paksw6bbQP9Kt2HNIDDU+TjWp7eqk5F5KAJSIvMWkv70ePMdChoYzV7Ed8f1TrnkgroDaUFtAh/KfY3U89Poa4Dto+ku3jZ60S2w6/cuGlEdIZm836LNZsKpuvwaPmgABWLtbc8IQjuqXgpcQ7jMlFSFt43gD7oIFWYhkP1vZe0vVknGnstapmKsYNUwuh66Dj573aeu/BZ36oyzZmcswJlNO80JUiXkiHnmmmZ/8MBUl1MsFFbK225wdsbYvoEDsekd8yNqnmwvTxDFmTpc8Xd7oKEDirwGQFR73L1/EXIQ+latY9FN7YgFxxrnEkCAwEAAQ==\n"
         "-----END PUBLIC KEY-----"
     };
     if(i == 1){
