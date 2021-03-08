@@ -1,3 +1,6 @@
 .vscode
 tumama
 a.out
+bin/*.zip
+bin/principal
+adminpanel/keys/*
