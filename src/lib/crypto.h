@@ -1,3 +1,20 @@
+#ifndef _CRYPTO_H
+#define _CRYPTO_H
+
+char * gen_aes(){
+    static char aes[48];
+    srand(time(NULL)); 
+    /*
+    * todo: replace with c++ code
+    */
+    char dic[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for(int i=0; i<48; i++){
+        aes[i] = dic[rand () % strlen(dic)];
+    }
+    //printf("%s\n",aes);
+    return aes;
+}
+
 void cifrar(char path[], char file[], char passwd[]) {
     /* todo: considerar usar pthreads.
     int fc = fork();
@@ -17,8 +34,13 @@ void cifrar(char path[], char file[], char passwd[]) {
 
     }
     */
+   /*
+   
+   todo: use openssl library
+
+   */
   char command[100000]="(openssl enc -aes-256-cbc -pass pass:";
-  strcat(command,passwd);
+  strcat(command, passwd);
   strcat(command," -in ");
   strcat(command,path);
   strcat(command,"/");
@@ -37,3 +59,5 @@ void cifrar(char path[], char file[], char passwd[]) {
   //(openssl enc -aes-256-cbc -pass pass:1234 -in plain.txt -out plain.txt.ntd 2>/dev/null; rm plain.txt 2>/dev/null)&
   system(command);
 }
+
+#endif
