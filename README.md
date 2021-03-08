@@ -25,8 +25,8 @@
 - intentar hacer algo para que no mate el proceso de cifrado. (nuevo)
 - Manejar excepciones de conexion a internet (nuevo)
 - Unidad de Prueba (/test -> ¿?)
-- Habilitar Debugeo (nuevo)
-- Mandar una señal de shutdown cuando 
+- Mandar una señal de shutdown cuando
+- Actualizar imagenes
 
 ## Generacion aleatoria de la clave AES
 
