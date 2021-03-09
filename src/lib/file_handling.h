@@ -114,16 +114,20 @@ int create_enc_file(char aes[]){
             "-out", "enviame.enc", (char *)NULL
         };
         int e = execv("/usr/bin/openssl", args);
-        exit(0);
+        exit(e);
     } else {
         int status;
         close(mypipe[0]);
         dprintf(mypipe[1], "%s", aes);
         close(mypipe[1]);
         int ro = wait(&status);
+        
+        if (ro != 0) {
+            dbgerr("Error with openssl on creating enc file...");
+            exit(ro);
+        }
     }
-
-    debug("enviame.enc should have been created.");
+    
     return 0;
 }
 

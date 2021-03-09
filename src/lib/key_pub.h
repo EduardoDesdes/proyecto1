@@ -5,7 +5,7 @@
     char * pub_key =  { \
         "-----BEGIN PUBLIC KEY-----\n"  \
         KEYPUB               \
-        "-----END PUBLIC KEY-----"      \
+        "\n-----END PUBLIC KEY-----"      \
     }   
 
 void gen_key_pub(){
