@@ -7,16 +7,23 @@ This headers handles file management
 
 */
 
-int create_flag(const char* filename){
+int create_flag(const char* filename) {
+    if (access(filename, F_OK)) {
+        debug("Fileflag %s was found. Returning 0.", filename);
+        return 0;
+    }
+
     int fd = open(filename, O_CREAT | O_WRONLY, 0400);
 
     if (fd < 0) {
         dbgerr("Error on opening file descriptor");
-        exit(1);
+        dbgerr("open returned %d", fd);
+        exit(fd);
     }
 
     dprintf(fd, "1");
     close(fd);
+    debug("Flagfile %s created.", filename);
     return 0;
 }
 
@@ -121,11 +128,14 @@ int create_enc_file(char aes[]){
         dprintf(mypipe[1], "%s", aes);
         close(mypipe[1]);
         int ro = wait(&status);
-        
-        if (ro != 0) {
+        debug("Child returned: %d", ro);
+        /**
+        if (ro < 0) {
             dbgerr("Error with openssl on creating enc file...");
+            dbgerr("Error value: %d", ro);
             exit(ro);
         }
+        **/
     }
     
     return 0;

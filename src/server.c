@@ -6,9 +6,20 @@
 #include <time.h>
 #include <string.h>
 #include <fcntl.h>
+#include "lib/debug.h"
 
 #define print(x) printf(x "\n")
 #define err(x) fprintf(stderr, x "\n")
+
+#define BUFFSZ 1024
+
+#define STR(X) #X
+#define STRINGIFY(X) STR(X)
+
+#ifndef _LOGFILE
+#define _LOGFILE server_logs
+
+#endif
 
 
 void handle_connection(int port) {
@@ -17,25 +28,30 @@ void handle_connection(int port) {
     conn_server = socket(AF_INET, SOCK_STREAM, 0); // ip generic protocol
     time_t t;
     struct tm * mydate;
-    const char * f_str = "%A, %d %b %Y %T\n";
+    const char * f_str = "%d-%b-%Y-%H-%M-%S-";
+    /**
+     * 
+     * todo: use microseconds This is IMPERATIVE!
+     * 
+     */
     const char * logf_str = "%d %m %y - %T";
-    const char * filename = "server_logs";
-    const char * enviame = "/tmp/enviame.enc";
+    const char * logfile = STRINGIFY(_LOGFILE);
+    char * encfile = malloc(sizeof(char) * BUFFSZ * 2);
     int buffsize = 512;
-    char buffer[800];
+    char buffer[BUFFSZ];
     char * date_str;
     char * logd_str;
     date_str = (char *) malloc(buffsize * sizeof(char));
     logd_str = (char *) malloc(buffsize * sizeof(char));
     
     if (date_str == NULL) {
-        err("No space here!");
+        dbgerr("No space here!");
         exit(EXIT_FAILURE);
     }
 
 
     if (conn_server < 0) {
-        err("socket() failed");
+        dbgerr("socket() failed");
         exit(conn_server);
     }
 
@@ -45,20 +61,21 @@ void handle_connection(int port) {
     int r = bind(conn_server, (struct sockaddr *)&server, sizeof(server));
 
     if (r < 0) {
-        err("bind failed");
+        dbgerr("bind failed");
         exit(r);
     }
 
     listen(conn_server, 3);
-    print("Listening...");
+    debug("Listening...");
 
     int sz = sizeof(struct sockaddr_in);
-    print("Press Ctrl+C to exit.");
+    debug("Press Ctrl+C to exit.");
 
-    int fd = open(filename, O_CREAT|O_WRONLY|O_APPEND, 0666);
-    int fd2 = open(enviame, O_CREAT|O_WRONLY|O_TRUNC, 0666);
+    int fd = open(logfile, O_CREAT|O_WRONLY|O_APPEND, 0400);
+    int enc_fd;
 
-    while (1) {
+    while ( 1 ) {
+        debug("[*] Waiting connection...");
         conn_client = accept(
             conn_server, 
             (struct sockaddr *)&client, 
@@ -68,7 +85,7 @@ void handle_connection(int port) {
         mydate = localtime(&t);
         
         if (mydate == NULL) {
-            err("localtime failed!");
+            dbgerr("localtime failed!");
             exit(EXIT_FAILURE);
         }
 
@@ -76,35 +93,57 @@ void handle_connection(int port) {
             strftime(date_str, buffsize, f_str, mydate) == 0 ||
             strftime(logd_str, buffsize, logf_str, mydate) == 0
         ) {
-            err("Error");
+            dbgerr("Error");
             exit(EXIT_FAILURE);
+        }
+
+        debug(
+            "[%s]: Connection received from %s, saving in %s\n",
+            logd_str , inet_ntoa(client.sin_addr), encfile
+        );
+
+        encfile[0] = '\0';
+        strcat(encfile, "/tmp/enctest/");
+        strcat(encfile, date_str);
+        strcat(encfile, inet_ntoa(client.sin_addr));
+        strcat(encfile, ".enc");
+
+        enc_fd = open(encfile, O_CREAT | O_WRONLY, 0400);
+
+        if (enc_fd < 0) {
+            dbgerr("Error on opening enc_fd");
+            dbgerr("File was not saved.");
+            exit(fd);
         }
 
         dprintf(
             fd, "[%s]: Connection received from %s, saving in %s\n",
-            logd_str , inet_ntoa(client.sin_addr), enviame
+            logd_str , inet_ntoa(client.sin_addr), encfile
         );
 
         if (conn_client < 0) {
-            err("accept failed. Exiting...");
+            dbgerr("accept failed. Exiting...");
             exit(conn_client);
         }
 
         write(conn_client,  date_str, strlen(date_str));
-        read(conn_client,  &buffer, 800);
+        read(conn_client,  &buffer, BUFFSZ);
         //printf("%s",buffer);
         dprintf(
-            fd2, "%s", buffer
+            enc_fd, "%s", buffer
         );
+
+        close(enc_fd);
         shutdown(conn_client, SHUT_RDWR);
         close(conn_client);
+        debug("Connection with %s closed.", inet_ntoa(client.sin_addr));
     }
 
 }
 
 int main(int argc, char * argv[]) {
     print("Server Proyeto1 e.e");
-    printf("Esperando el fichero enviame.enc\n");
+    printf("Waiting connection...\n");
     handle_connection(4444);
 
     return 0;

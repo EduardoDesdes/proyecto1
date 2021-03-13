@@ -25,6 +25,7 @@ case $RSP in
 		echo "[*] Compilando principal.c"
 
 		gcc ../src/principal.c -DKEY_PUB=$PFKEY -D_DEBUG -o ../bin/principal
+		gcc ../src/server.c -D_DEBUG -D_LOGFILE=../bin/server_logs -o ../bin/server 
 
 		echo "[*] Compilacion completa"
 		echo "[*] Generando install.sh"
@@ -57,7 +58,7 @@ case $RSP in
 			echo "*) "${i::-4}
 		done
 		read -p 'Computador: ' COMPU
-		read -p 'Contraseña: ' PASSWD
+		read -s 'Contraseña: ' PASSWD
 		echo ""
 		echo "[*] Mostrando:"
 		openssl enc -aes-256-cbc -d -pass pass:$PASSWD -in keys/$COMPU.key 2>/dev/null
