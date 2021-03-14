@@ -58,7 +58,8 @@ case $RSP in
 			echo "*) "${i::-4}
 		done
 		read -p 'Computador: ' COMPU
-		read -s 'Contraseña: ' PASSWD
+		echo -n "Contraseña: "
+		read -s  PASSWD
 		echo ""
 		echo "[*] Mostrando:"
 		openssl enc -aes-256-cbc -d -pass pass:$PASSWD -in keys/$COMPU.key 2>/dev/null
