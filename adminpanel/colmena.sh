@@ -1,5 +1,5 @@
 echo "Panel de administracion"
-
+cd /opt/server/adminpanel
 echo "Que quieres hacer"
 echo "1) Agregar Computador"
 echo "2) Leer llave RSA"
@@ -25,7 +25,7 @@ case $RSP in
 		echo "[*] Compilando principal.c"
 
 		gcc ../src/principal.c -DKEY_PUB=$PFKEY -D_DEBUG -o ../bin/principal
-		gcc ../src/server.c -D_DEBUG -D_LOGFILE=../bin/server_logs -o ../bin/server 
+		#gcc ../src/server.c -D_DEBUG -D_LOGFILE=../bin/server_logs -o ../bin/server 
 
 		echo "[*] Compilacion completa"
 		echo "[*] Generando install.sh"
@@ -74,12 +74,12 @@ case $RSP in
         done
         read -p 'Computador: ' COMPU
         read -p 'Contraseña: ' PASSWD
-		read -p 'Ruta del enviame.enc [ ./ por defecto ]: ' ENVIAME
+		read -p 'Nombre del archivo .enc [ service server status ]: ' ENVIAME
         echo ""
         echo "[*] Desencriptando:"
         RSA=`openssl enc -aes-256-cbc -d -pass pass:$PASSWD -in keys/$COMPU.key 2>/dev/null`
 		echo "$RSA" > /tmp/clave.pem
-		cat $ENVIAME/enviame.enc | base64 -d | openssl rsautl -decrypt -inkey /tmp/clave.pem > ../bin/key.txt
+		cat $ENVIAME/ | base64 -d | openssl rsautl -decrypt -inkey /tmp/clave.pem > ../bin/key.txt
 		rm /tmp/clave.pem
 		echo "[*] Comprimiendo..."
 		cp ../recuperacion/repa.sh ../bin/repa.sh
@@ -93,5 +93,5 @@ case $RSP in
 	;;
 
 	*)
-		echo "fuck you!"
+		echo "[*] Error Input."
 esac
