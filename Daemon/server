@@ -16,10 +16,10 @@ case $1 in
 	;;
     stop)
 	    echo "$(date): stopped requested. Nothing was done yet" >> $LOG_FILE
+	killall server
     ;;
     status)
 	    echo "$(date): status requested" >> $LOG_FILE
-	ls -l /tmp/enctest
         exit 0
     ;;
     *)

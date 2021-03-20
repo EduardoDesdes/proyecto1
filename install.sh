@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Compilando el server
-gcc src/server.c -o server
+gcc src/server.c -o server -D_DEBUG
 
 #Creando directorio donde se guardaran los archivos enviados
 mkdir /tmp/enctest
