@@ -20,7 +20,7 @@ done
 
 systemctl daemon-reload
 
-service server start
+service server restart
 service server status
 
 #Enviando los archivos a /opt/server
