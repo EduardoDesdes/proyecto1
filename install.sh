@@ -20,8 +20,8 @@ done
 
 systemctl daemon-reload
 
-service nottoday start
-service nottoday status
+service server start
+service server status
 
 #Enviando los archivos a /opt/server
 mkdir /opt/server/

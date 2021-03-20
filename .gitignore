@@ -3,5 +3,5 @@ tumama
 a.out
 bin/*.zip
 bin/principal
-adminpanel/keys/*
+adminpanel/keys/*.key
 pruebas/*

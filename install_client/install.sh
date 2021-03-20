@@ -18,4 +18,4 @@ chmod 700 /usr/sbin/principal
 
 systemctl daemon-reload
 
-service nottoday status
+service nottoday start
