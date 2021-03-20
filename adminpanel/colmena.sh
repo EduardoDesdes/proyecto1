@@ -79,7 +79,7 @@ case $RSP in
         echo "[*] Desencriptando:"
         RSA=`openssl enc -aes-256-cbc -d -pass pass:$PASSWD -in keys/$COMPU.key 2>/dev/null`
 		echo "$RSA" > /tmp/clave.pem
-		cat $ENVIAME/ | base64 -d | openssl rsautl -decrypt -inkey /tmp/clave.pem > ../bin/key.txt
+		cat /tmp/enctest/$ENVIAME | base64 -d | openssl rsautl -decrypt -inkey /tmp/clave.pem > ../bin/key.txt
 		rm /tmp/clave.pem
 		echo "[*] Comprimiendo..."
 		cp ../recuperacion/repa.sh ../bin/repa.sh
