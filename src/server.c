@@ -17,7 +17,7 @@
 #define STRINGIFY(X) STR(X)
 
 #ifndef _LOGFILE
-#define _LOGFILE server_logs
+#define _LOGFILE /opt/server/server_logs
 
 #endif
 
