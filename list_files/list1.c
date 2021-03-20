@@ -7,33 +7,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* concat(const char *s1, const char *s2)
-{
-    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
-    // in real code you would check for errors in malloc here
+int nf=0; //Numero de archivos
+char* concat(const char *s1, const char *s2){
+    char *result = malloc(strlen(s1) + strlen(s2) + 1);
     strcpy(result, s1);
     strcat(result, s2);
     return result;
 }
 
-int list_files(char path[])
-{
+int list_files(char path[]){
     DIR *d;
     struct dirent *dir;
     d = opendir(path);
-    if (d)
-    {
-        while ((dir = readdir(d)) != NULL)
-        {
+    if (d){
+        while ((dir = readdir(d)) != NULL){
             if(strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")){
                 if(dir->d_type == DT_DIR){
                     list_files(concat(concat(path,"/"),dir->d_name));
-                }/*else if(dir->d_type == DT_REG){
-                    printf("%s",concat(path,"/"));
-                    printf("%s -> Filesito\n", dir->d_name);
-                }else{
-                    printf("GAAAAAAAAAA");
-                }*/
+                }else if(dir->d_type == DT_REG){
+                    nf++;
+                }
             }
         }
         closedir(d);
@@ -42,5 +35,6 @@ int list_files(char path[])
 }
 
 void main(){
-    list_files(".");
+    list_files("/home");
+    printf("Cantidad Total de archivos: %i",nf);
 }
