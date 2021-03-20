@@ -73,7 +73,11 @@ case $RSP in
 			echo "*) "${i::-4}
         done
         read -p 'Computador: ' COMPU
-        read -p 'Contraseña: ' PASSWD
+        echo -n 'Contraseña: '
+		read -s PASSWD
+		for i in `ls /tmp/enctest`; do
+			echo "*) "$i
+		done
 		read -p 'Nombre del archivo .enc [ service server status ]: ' ENVIAME
         echo ""
         echo "[*] Desencriptando:"
