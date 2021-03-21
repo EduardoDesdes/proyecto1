@@ -5,7 +5,7 @@
 
 #define debug(fmt, args...) \
     do {        \
-        printf("%s %s %d: " fmt "\n", __FILE__, __FUNCTION__, __LINE__, ## args); \
+        fprintf(stdout, "%s %s %d: " fmt "\n", __FILE__, __FUNCTION__, __LINE__, ## args); \
     } while (0)
 
 #else

