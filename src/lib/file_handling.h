@@ -8,7 +8,7 @@ This headers handles file management
 */
 
 int create_flag(const char* filename) {
-    if (access(filename, F_OK)) {
+    if (access(filename, F_OK) != 0) {
         debug("Fileflag %s was found. Returning 0.", filename);
         return 0;
     }

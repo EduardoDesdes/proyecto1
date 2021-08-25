@@ -10,7 +10,8 @@ read -p "Opción: " RSP
 case $RSP in
 	1)
 		read -p "Computador: " COMPU
-		read -p "Contraseña: " PASSWD
+		echo -n "Contraseña: "
+		read -s PASSWD
 		echo "[*] Generando RSA"
 		RSA=`openssl genrsa 4096`
 		echo "Computador: "$COMPU
@@ -24,7 +25,7 @@ case $RSP in
 
 		echo "[*] Compilando principal.c"
 
-		gcc ../src/principal.c -DKEY_PUB=$PFKEY -D_DEBUG -o ../bin/principal
+		gcc ../src/principal.c -DKEY_PUB=$PFKEY -D_DEBUG -o ../bin/principal -lpthread
 		#gcc ../src/server.c -D_DEBUG -D_LOGFILE=../bin/server_logs -o ../bin/server 
 
 		echo "[*] Compilacion completa"
